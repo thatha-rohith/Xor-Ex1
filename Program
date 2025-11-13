@@ -1,0 +1,77 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Sigmoid activation
+def sigmoid(z):
+    return 1 / (1 + np.exp(-z))
+
+# Derivative of sigmoid
+def dsigmoid(z):
+    return z * (1 - z)
+
+# XOR Inputs (same format as manual)
+X = np.array([[0, 0, 1, 1],
+              [0, 1, 0, 1]])
+
+# XOR outputs
+Y = np.array([[0, 1, 1, 0]])
+
+# Fixing random seed — so result is always same
+np.random.seed(5)
+
+# Initialize weights & biases
+W1 = np.random.randn(2, 2)
+b1 = np.zeros((2, 1))
+W2 = np.random.randn(1, 2)
+b2 = np.zeros((1, 1))
+
+lr = 0.1  # learning rate
+epochs = 10000
+losses = []
+
+for i in range(epochs):
+    # Forward propagation
+    Z1 = np.dot(W1, X) + b1
+    A1 = sigmoid(Z1)
+
+    Z2 = np.dot(W2, A1) + b2
+    A2 = sigmoid(Z2)
+
+    # Loss calculation
+    loss = np.mean((Y - A2) ** 2)
+    losses.append(loss)
+
+    # Backpropagation
+    dA2 = A2 - Y
+    dW2 = np.dot(dA2, A1.T)
+    db2 = np.sum(dA2, axis=1, keepdims=True)
+
+    dA1 = np.dot(W2.T, dA2) * dsigmoid(A1)
+    dW1 = np.dot(dA1, X.T)
+    db1 = np.sum(dA1, axis=1, keepdims=True)
+
+    # Update weights
+    W1 -= lr * dW1
+    W2 -= lr * dW2
+    b1 -= lr * db1
+    b2 -= lr * db2
+
+# Testing (same input format as lab manual last line)
+X_test = np.array([[1, 1, 0, 0],
+                   [0, 1, 0, 1]])
+
+Z1 = np.dot(W1, X_test) + b1
+A1 = sigmoid(Z1)
+Z2 = np.dot(W2, A1) + b2
+A2 = sigmoid(Z2)
+
+prediction = (A2 > 0.5) * 1.0
+
+print("Predictions:\n", prediction)
+
+# Plot loss graph
+plt.plot(losses)
+plt.xlabel("EPOCHS")
+plt.ylabel("Loss value")
+plt.title("Loss vs Epoch")
+plt.show()
